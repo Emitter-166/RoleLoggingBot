@@ -25,7 +25,7 @@ public class setup extends ListenerAdapter {
                         .setDescription("ㅤ\n" +
                                 "**setup commands:** \n" +
                                 "ㅤ\n" +
-                                "`$sensitiveRoles roleName(cAsE SeNSiTIve, names separated by whiteSpace)` **role to keep a special eye on** \n" +
+                                "`$sensitiveRoles roleNames(cAsE SeNSiTIve, names separated by whiteSpace)` **roles to keep an eye on** \n" +
                                 "ㅤ\n" +
                                 "`$rmSensitiveRole roleName(cAsE SeNSiTIve)` **remove sensitive roles, one at a time** \n" +
                                 "ㅤ\n" +
@@ -114,9 +114,10 @@ public class setup extends ListenerAdapter {
                         .setDescription("" +
                                 String.format("**Sensitive roles: %s** \n" +
                                         "**Role to ping: %s** \n" +
-                                        "**Logging channel: <#%s> **", sensitiveRoles,
+                                        "**Logging channel: <#%s> ** \n" +
+                                        "**ignore bot?** `%s`", sensitiveRoles,
                                         e.getGuild().getRolesByName(Database.get(e.getGuild().getId()).get("roleToPing").toString(), false).get(0),
-                                        Database.get(e.getGuild().getId()).get("loggingChannel").toString()));
+                                        Database.get(e.getGuild().getId()).get("loggingChannel").toString(), Database.get(e.getGuild().getId()).get("ignoreBot")));
 
                 e.getMessage().replyEmbeds(configBuilder.build())
                         .mentionRepliedUser(false)

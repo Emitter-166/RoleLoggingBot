@@ -36,7 +36,6 @@ public class onRoleRemove extends ListenerAdapter {
 
                     if(!Arrays.stream(Database.get(e.getGuild().getId()).get("sensitiveRoles").toString().split(" "))
                             .anyMatch(name -> e.getRoles().stream().anyMatch(role -> role.getName().equals(name)))){
-                        System.out.println("36");
                         Objects.requireNonNull(e.getGuild().getTextChannelById(Database.get(e.getGuild().getId()).get("loggingChannel").toString()), "Text channel empty")
                                 .sendMessageEmbeds(removeBuilder.build())
                                 .queue();
