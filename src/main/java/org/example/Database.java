@@ -12,72 +12,48 @@ import org.bson.conversions.Bson;
 import java.util.NoSuchElementException;
 
 public class Database extends ListenerAdapter {
-    public static MongoCollection collection;
+    public static MongoCollection<Document> collection;
     @Override
     public void onReady(ReadyEvent e){
-        String uri = System.getenv("uri");
-        MongoClientURI clientURI = new MongoClientURI(uri);
-        MongoClient client = new MongoClient(clientURI);
-        MongoDatabase database = client.getDatabase("serverConfig");
-        collection = database.getCollection("serverConfig");
+
+           String uri = System.getenv("uri");
+           MongoClientURI clientURI = new MongoClientURI(uri);
+           MongoClient client = new MongoClient(clientURI);
+           MongoDatabase database = client.getDatabase("serverConfig");
+           collection = database.getCollection("serverConfig");
 
     }
 
 
 
-    public static void set(String Id, String Key, String value, boolean isAdd){
-        updateDB(Id,"serverId", Key, value, isAdd);
+    public static void set(String Id, String Key, String value, boolean isAdd) throws InterruptedException {
+        updateDB(Id, Key, value, isAdd);
     }
-
-    public static void setUser(String Id, String Key, String value, boolean isAdd){
-        updateDB(Id, "userId",Key, value, isAdd );
-    }
-
-
     public static Document get(String Id){
-        return (Document) collection.find(new Document("serverId", Id)).cursor().next();
+        return collection.find(new Document("serverId", Id)).cursor().next();
     }
-
-    public static Document getUser(String Id){
-        return (Document) collection.find(new Document("userId", Id)).cursor().next();
-    }
-
-
 
     private static void createDB(String Id){
         //server config
         Document document = new Document("serverId", Id)
-                .append("countingChannel", "none")
-                .append("hasRewards", false)
-                .append("beforeReward", 0)
-                .append("admins", "0")
-                .append("action", "0-message")
-                .append("emoji", ":sparkles:");
+                .append("sensitiveRoles", "")
+                .append("roleToPing", "")
+                .append("loggingChannel", "");
 
         collection.insertOne(document);
 
     }
 
 
-    private static void createUserDB(String userId){
-        //user config
-        Document document = new Document("userId", userId)
-                .append("counted", 0);
-        collection.insertOne(document);
-    }
-
-
-    private static void updateDB(String Id, String field,  String key, String value, boolean isAdd){
+    private static void updateDB(String Id, String key, Object value, boolean isAdd) throws InterruptedException {
         //for server
         Document document = null;
         try{
-            document = (Document) collection.find(new Document(field, Id)).cursor().next();
+            document = collection.find(new Document("serverId", Id)).cursor().next();
         }catch (NoSuchElementException exception){
-            if(field.equalsIgnoreCase("serverId")){
-                createDB(Id);
-            }else{
-                createUserDB(Id);
-            }
+            createDB(Id);
+            Thread.sleep(200);
+            document = collection.find(new Document("serverId", Id)).cursor().next();
         }
 
         if(!isAdd){
@@ -85,7 +61,7 @@ public class Database extends ListenerAdapter {
             Bson updateKey = new Document("$set", Updatedocument);
             collection.updateOne(document, updateKey);
         }else{
-            Document Updatedocument = new Document(key, document.get("key") + value);
+            Document Updatedocument = new Document(key, (document.get(key) + (String)value));
             Bson updateKey = new Document("$set", Updatedocument);
             collection.updateOne(document, updateKey);
         }
