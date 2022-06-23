@@ -26,7 +26,7 @@ public class Database extends ListenerAdapter {
 
 
 
-    public static void set(String Id, String Key, String value, boolean isAdd) throws InterruptedException {
+    public static void set(String Id, String Key, Object value, boolean isAdd) throws InterruptedException {
         updateDB(Id, Key, value, isAdd);
     }
     public static Document get(String Id){
@@ -38,7 +38,8 @@ public class Database extends ListenerAdapter {
         Document document = new Document("serverId", Id)
                 .append("sensitiveRoles", "")
                 .append("roleToPing", "")
-                .append("loggingChannel", "");
+                .append("loggingChannel", "")
+                .append("ignoreBot", true);
 
         collection.insertOne(document);
 

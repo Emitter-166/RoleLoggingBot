@@ -13,7 +13,7 @@ public class setup extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent e){
-        if(!e.getMember().hasPermission(Permission.ADMINISTRATOR)) return;
+        if(!Objects.requireNonNull(e.getMember(), "message didn't happen in a guild").hasPermission(Permission.ADMINISTRATOR)) return;
 
         String[] args = e.getMessage().getContentRaw().split(" ");
 
@@ -33,7 +33,9 @@ public class setup extends ListenerAdapter {
                                 "ㅤ\n" +
                                 "`$loggingChannel` **channel to log changes on** \n" +
                                 "ㅤ\n" +
-                                "`$config` **see current server settings**" +
+                                "`$config` **see current server settings** \n" +
+                                "ㅤ\n" +
+                                "`$ignoreBot true/false` **ignore bots when it updates a members role**" +
                                 "");
                 e.getMessage().replyEmbeds(helpBuilder.build())
                         .mentionRepliedUser(false)
@@ -83,6 +85,17 @@ public class setup extends ListenerAdapter {
                         .queue();
                 try {
                     Database.set(e.getGuild().getId(), "sensitiveRoles", Database.get(e.getGuild().getId()).get("sensitiveRoles").toString().replace(" " + args[1], ""), false);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+                break;
+
+            case "$ignoreBot":
+                e.getMessage().reply("`ignore bot set!`")
+                        .mentionRepliedUser(false)
+                        .queue();
+                try {
+                    Database.set(e.getGuild().getId(), "ignoreBot", Boolean.parseBoolean(args[1]),false);
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
